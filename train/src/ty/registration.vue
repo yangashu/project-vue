@@ -24,7 +24,7 @@
         <el-input
           style="width: 120px"
           placeholder="请输入内容"
-          v-model="input"
+          v-model="tbss.input"
           clearable
           size="small"
         >
@@ -32,32 +32,21 @@
         <!-- 搜索按钮 -->
         <el-button
           type="primary"
-          icon="i-search"
           style="height: 8px"
           size="small"
-        ></el-button>
-        <!-- <el-button icon="i-search" style="background-color:#f60;"></el-button> -->
-        <!-- 时间选择器 -->
-        <el-date-picker
-          class="timeOne"
-          v-model="value2"
-          type="daterange"
-          align="right"
-          unlink-panels
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          :picker-options="pickerOptions"
-          size="small"
+          @click="selectpotion"
         >
-        </el-date-picker>
+        <el-icon>
+            <search />
+          </el-icon>
+        </el-button>
         <!-- 文字链接     重置 -->
         &nbsp;&nbsp;&nbsp;
-        <el-link :underline="false" style="color: #409eff">重&nbsp;置</el-link>
+        <el-link :underline="false" style="color: #409eff" @click="cz">重&nbsp;置</el-link>
         <!-- 新增咨询登记按钮 -->
         <el-button
           type="primary"
-          style="margin-left: 22%"
+          style="margin-left: 55%"
           @click="centerDialogVisible = true"
           >新增访客</el-button
         >
@@ -67,12 +56,12 @@
       <div>
         <!-- 访客状态 -->
         <el-select
-          v-model="downOne"
+          v-model="tbss.downone"
           clearable
           placeholder="访客状态"
           class="dowone"
-          id="dowone"
-          @click="dowone()"
+          id="downone"
+          @change="downone()"
         >
           <el-option
             v-for="item in selectionone"
@@ -85,73 +74,79 @@
         &nbsp;&nbsp;&nbsp;
         <!-- 跟进人 -->
         <el-select
-          v-model="downTwo"
+          v-model="tbss.dowtwo"
           clearable
           placeholder="跟进人"
           class="dowtwo"
-          id="dowtwo"
-          @click="dowtwo()"
+          id="downtwo"
+          @change="downtwo()"
         >
           <el-option
             v-for="item in selectiontwo"
-            :key="item.downTwo"
-            :label="item.label"
-            :value="item.downTwo"
+            :key="item"
+            :label="item.staffName"
+            :value="item.staffId"
           >
           </el-option>
         </el-select>
         &nbsp;&nbsp;&nbsp;
         <!-- 意向课程 -->
         <el-select
-          v-model="downThree"
+          v-model="tbss.dowthree"
           clearable
           placeholder="意向课程"
           class="dowthree"
-          id="dowthree"
-          @click="dowthree()"
+          id="downthree"
+          @change="downthree()"
         >
           <el-option
             v-for="item in selectionthree"
-            :key="item.downThree"
-            :label="item.label"
-            :value="item.downThree"
+            :key="item"
+            :label="item.courseName"
+            :value="item.courseId"
           >
           </el-option>
         </el-select>
         &nbsp;&nbsp;&nbsp;
-        <!-- 单选框查询是否报名的学员 -->
-        <el-checkbox v-model="checked">备选项</el-checkbox>
       </div>
     </div>
     <!-- 表格 -->
     <div style="background: #fff; width: 99%; margin: 0px auto; margin-top: 1%;margin-left:0.5%;">
       <div style="padding-top: 1%; padding-bottom: 1%">
+       
         <el-table
-          :data="tableData.slice((currentPage - 1) * size, currentPage * size)"
+        class="tableData"
+          :data="tableData"
           border
           style="width: 98%; margin: 0px auto"
         >
+        
           <el-table-column fixed type="selection" width="55%">
           </el-table-column>
-          <el-table-column fixed prop="nameone" label="姓名" width="80%">
+          <el-table-column fixed prop="studentFiles_name" label="姓名" width="80%">
           </el-table-column>
-          <el-table-column prop="age" label="年龄" width="80%">
+          <el-table-column prop="studentFiles_age" label="年龄" width="80%">
           </el-table-column>
-          <el-table-column prop="sex" label="性别" width="80%">
+          <el-table-column prop="studentFiles_sex" label="性别" width="80%">
           </el-table-column>
-          <el-table-column prop="phone" label="联系方式" width="140%">
+          <el-table-column prop="studentFiles_phone" label="联系方式" width="140%">
           </el-table-column>
-          <el-table-column prop="address" label="学生住址" width="330%">
+          <el-table-column prop="studentFiles_loc" label="学生住址" width="330%">
           </el-table-column>
-          <el-table-column prop="course" label="咨询课程" width="100%">
+          <el-table-column prop="course_name" label="咨询课程" width="100%">
           </el-table-column>
-          <el-table-column prop="receptionist" label="接待人" width="90%">
+          <el-table-column prop="staff_NAME" label="接待人" width="90%">
           </el-table-column>
-          <el-table-column prop="school" label="学员毕业学校" width="230%">
+          <el-table-column prop="studentFiles_school" label="学员毕业学校" width="230%">
           </el-table-column>
-          <el-table-column prop="remarks" label="备注" width="120%">
+          <el-table-column prop="studentFiles_remarks" label="备注" width="120%">
           </el-table-column>
-          <el-table-column prop="state" label="状态" width="120%">
+          <el-table-column label="状态" width="120%" prop="studentFiles_state">
+            <template #default="scope">
+              <span v-if="scope.row.studentFiles_state==0">待跟进</span>
+              <span v-else-if="scope.row.studentFiles_state==1">已入学</span>
+              <span v-else-if="scope.row.studentFiles_state==2">已流失</span>
+            </template>
           </el-table-column>
           <el-table-column fixed="right" label="操作" width="200%">
             <template #default>
@@ -181,11 +176,11 @@
           <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
-            :current-page="currentPage"
-            :page-sizes="sizes"
-            :page-size="size"
+            :current-page="pageInfo.currentPage"
+            :page-sizes="pageInfo.sizes"
+            :page-size="pageInfo.size"
             layout="total, sizes, prev, pager, next, jumper"
-            :total="4"
+            :total="pageInfo.total"
           >
           </el-pagination>
         </div>
@@ -201,7 +196,7 @@
       <!-- 新增访客弹框 -->
       <el-dialog
         v-model="centerDialogVisible"
-        width="40%"
+        width="45%"
         title="新增访客信息"
         style="backgroud-color: #f5f7fa"
         destroy-on-close
@@ -228,13 +223,13 @@
           </el-col>
         </el-row>
         <!-- 年龄和出生年月 -->
-        <el-form-item label="年龄：" prop="date1">
+        <el-form-item label="年龄：" prop="date1" style="margin-top:1%;">
           <el-date-picker
             v-model="form.date1"
             type="date"
             size="small"
             placeholder="Pick a date"
-            style="width: 36%"
+            style="width: 38%"
             @change="suan"
           ></el-date-picker>
           <el-input
@@ -251,13 +246,13 @@
         <el-form-item
           label="联系方式："
           prop="phone"
-          style="margin-left: 0%; margin-top: -4%;background-color:red;"
+          style="margin-left: 0%; margin-top: -4%;"
         >
           <el-input
             v-model.number="ruleForm.phone"
             class="nametext"
             placeholder="请填写学员联系电话"
-            style="width: 99%"
+            style="width: 99%;"
             size="small"
             type="phone"
             autocomplete="off"
@@ -266,14 +261,39 @@
           </el-col>
         <!-- 咨询课程 -->
         <el-col :span="12">
-        <el-form-item label="咨询课程：" prop="course">
+          
+        <el-form-item label="咨询课程：" prop="course" style="margin-top:-3%;">
           <el-select v-model="ruleForm.course" placeholder="请选择咨询课程" size="small">
             <el-option label="java" value="java"></el-option>
             <el-option label="python" value="python"></el-option>
           </el-select>
         </el-form-item>
+       
         </el-col>
         </el-row>
+        <!-- 家长联系方式 -->
+         <el-row :gutter="24">
+          <el-col :span="12">
+        <el-form-item
+          label="家长电话："
+          prop="parentphone"
+          style=""
+        >
+          <el-input
+            v-model.number="ruleForm.parentphone"
+            class="nametext"
+            placeholder="请填写家长联系电话"
+            style="width: 99%"
+            size="small"
+            type="phone"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+          </el-col>
+          <el-col :span="12">
+
+          </el-col>
+         </el-row>
 
         <template #footer>
           <el-form-item>
@@ -295,186 +315,71 @@
 import { ArrowDown } from "@element-plus/icons";
 // 新增访客弹框
 import { defineComponent, ref } from "vue";
+import qs from "qs";
+import request from '../utils/request';
 export default {
   data() {
     return {
+      tbss:{
+        //   搜索文本框
+      input: "",
+        downone:"",
+        dowtwo:"",
+        dowthree:"",
+      },
+      tableData:[],
+      // 访客状态
+      selectionone:[
+           {
+          downOne: 0,
+          label: "待跟进",
+        },
+        {
+          downOne: 1,
+          label: "已入学",
+        },
+        {
+          downOne: 2,
+          label: "已流失",
+        }
+      ],
       // 新增访客弹框默认性别
       radio: "1",
       // 新增访客弹框
       centerDialogVisible: ref(false),
-      //单选框查询是否报名的学员
-      checked: false,
-      //   搜索文本框
-      input: "",
-      // 头部  时间选择器
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
-            },
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
-            },
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            },
-          },
-        ],
-      },
+      
+      
       value1: "",
       value2: "",
       //   搜索下拉框
       options: [
         {
-          value: "选项1",
-          label: "黄金糕",
+          value: "姓名",
+          label: "姓名",
         },
         {
-          value: "选项2",
-          label: "双皮奶",
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎",
-        },
-        {
-          value: "选项4",
-          label: "龙须面",
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭",
+          value: "毕业学校",
+          label: "毕业学校",
         },
       ],
       // 下拉框默认值
-      value: "黄金糕",
-      // 访客状态下拉框
-      selectionone: [
-        {
-          downOne: "选项1",
-          label: "待跟进",
-        },
-        {
-          downOne: "选项2",
-          label: "已报名",
-        },
-        {
-          downOne: "选项3",
-          label: "已流失",
-        },
-      ],
-      // 下拉框默认值
-      downOne: "访客状态",
+      value: "姓名",
       // 跟进人下拉框
-      selectiontwo: [
-        {
-          downTwo: "选项1",
-          label: "张三",
-        },
-        {
-          downTwo: "选项2",
-          label: "李四",
-        },
-        {
-          downTwo: "选项3",
-          label: "王五",
-        },
-      ],
-      // 下拉框默认值
-      downTwo: "跟进人",
+      selectiontwo: [],
+     
       // 意向课程下拉框
-      selectionthree: [
-        {
-          downThree: "选项1",
-          label: "java",
-        },
-        {
-          downThree: "选项2",
-          label: "c++",
-        },
-        {
-          downThree: "选项3",
-          label: "python",
-        },
-      ],
-      // 下拉框默认值
-      downThree: "意向课程",
+      selectionthree: [],
       // 分页
+      pageInfo:{
       sizes: [1, 2, 3, 4],
       size: 1,
       currentPage: 1,
+      total:1,
+      },
       // 更多 图标
       components: {
         arrowdown: ArrowDown,
       },
-      // 表格
-      tableData: [
-        {
-          nameone: "张三",
-          age: "19",
-          sex: "男",
-          phone: "12345467890",
-          address: "湖南省株洲市荷塘区人工智能职业技术学校",
-          course: "java",
-          receptionist: "王五",
-          school: "株洲人工智能职业技术学校",
-          remarks: "qqqqqqq",
-          state: "未在读",
-        },
-        {
-          nameone: "张三",
-          age: "19",
-          sex: "男",
-          phone: "12345467890",
-          address: "湖南省株洲市荷塘区人工智能职业技术学校",
-          course: "java",
-          receptionist: "王五",
-          school: "株洲人工智能职业技术学校",
-          remarks: "qqqqqqq",
-          state: "未在读",
-        },
-        {
-          nameone: "张三",
-          age: "19",
-          sex: "男",
-          phone: "12345467890",
-          address: "湖南省株洲市荷塘区人工智能职业技术学校",
-          course: "java",
-          receptionist: "王五",
-          school: "株洲人工智能职业技术学校",
-          remarks: "qqqqqqq",
-          state: "未在读",
-        },
-        {
-          nameone: "张三",
-          age: "19",
-          sex: "男",
-          phone: "12345467890",
-          address: "湖南省株洲市荷塘区人工智能职业技术学校",
-          course: "java",
-          receptionist: "王五",
-          school: "株洲人工智能职业技术学校",
-          remarks: "qqqqqqq",
-          state: "未在读",
-        },
-      ],
       // 新增访客信息弹框
       ruleForm: {
         name: "",
@@ -485,8 +390,9 @@ export default {
         type: [],
         resource: "",
         desc: "",
-        phone: "",
-        course:"",
+        phone: "",//联系方式
+        parentphone:"",//家长联系方式
+        course:"",//课程
       },
       // 新增访客弹框出生日期
       form: {
@@ -501,7 +407,9 @@ export default {
         ],
         desc: [{ required: true, message: "请填写活动形式", trigger: "blur" }],
         phone: [
-          { required: true, message: "请填写联系方式" },
+          { type: "number", message: "年龄必须为数字值" },
+        ],
+        parentphone: [
           { type: "number", message: "年龄必须为数字值" },
         ],
         course:[
@@ -512,6 +420,48 @@ export default {
   },
 
   methods: {
+    // 下拉框模糊查询
+    selectpotion(){
+      
+      console.log(this.value);
+      
+      // this.pageInfo.currentPage=this.tbss.currentPage
+      // this.pageInfo.size=this.tbss.size
+      request.get("/studentfiles/likeselectipton",{
+        params:{
+          page:this.pageInfo.currentPage,
+          size:this.pageInfo.size,
+          input:this.tbss.input,
+          downone:this.tbss.downone,
+          dowtwo:this.tbss.dowtwo,
+          dowthree:this.tbss.dowthree,
+          value:this.value,
+        }
+      }
+      ).then(res =>{
+        console.log(res);
+        
+       this.tableData=res.records;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+       this.pageInfo.total = res.total;
+
+        
+      }).catch(error =>{
+        console.log(error);
+        
+      })
+    },
+    // 重置
+    cz() {
+      this.tbss.input="";
+     this.tbss.downone="";
+     this.tbss.dowtwo="";
+     this.tbss.dowthree="";
+    //  document.getElementById("downone").style.color = "gary";
+    //  document.getElementById("downtwo").style.color = "gary";
+    //  document.getElementById("downthree").style.color = "gary";
+     this.tbss.checked=false;
+     this.selectpage();
+    },
     // 新增访客信息弹框
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
@@ -545,27 +495,68 @@ export default {
       console.log("年龄", age);
     },
     // 访客状态下拉框样式：使点击的字体变蓝色
-    dowone() {
-      document.getElementById("dowone").style.color = "#409eff";
+    downone() {
+      this.selectpotion();
+      document.getElementById("downone").style.color = "#409eff";
     },
-    dowtwo() {
-      document.getElementById("dowtwo").style.color = "#409eff";
+    downtwo() {
+      this.selectpotion();
+      document.getElementById("downtwo").style.color = "#409eff";
     },
-    dowthree() {
-      document.getElementById("dowthree").style.color = "#409eff";
+    // 跟进人查询
+    selectgjr(){
+      request.get("/staff/selectgjr").then((res) =>{
+        this.selectiontwo = res;
+      })
+    },
+    // 意向课程查询
+    selectyxkc(){
+       request.get("/course/selectkechen").then((res) =>{
+        this.selectionthree = res;
+      })
+    },
+    downthree() {
+      this.selectpotion();
+      document.getElementById("downthree").style.color = "#409eff";
     },
     // 表格
     handleClick(row) {
       console.log(row);
     },
-    handleSizeChange(val) {
-      this.size = val;
-      console.log(`每页 ${val} 条`);
+    handleSizeChange(size) {
+      var _this = this;
+      this.pageInfo.size = size;
+      var ps = qs.stringify(this.pageInfo);
+      console.log(ps);
+      this.selectpotion()
     },
-    handleCurrentChange(val) {
-      this.currentPage = val;
-      console.log(`当前页: ${val}`);
+    handleCurrentChange(page) {
+      var _this = this;
+      this.pageInfo.currentPage = page;
+      var ps = qs.stringify(this.pageInfo);
+      console.log(ps);
+      this.selectpotion()
     },
+      // 分页查询
+  selectpage(){
+    request.get("/studentfiles/selectpage",{
+    params:{currentPage:this.pageInfo.currentPage,
+            size:this.pageInfo.size
+    }
+  }).then(res=>{
+    this.tableData = res.records;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    this.pageInfo.total = res.total;                                                               
+  })
+  },
+  },
+  //直接查询
+  created() {
+    // this.selectpotion()
+  this.selectpage();
+  // 跟进人下拉框查询   咨询师的员工名字
+  this.selectgjr();
+  // 意向课程下拉框查询
+  this.selectyxkc();
   },
 };
 </script>
@@ -617,7 +608,7 @@ export default {
 /* 新增访客信息 */
 .el-dialog__header {
   background-color: #f5f7fa;
-}
+ }
 /* 新增访客信息弹框的字体样式 */
 .visitorstyle {
   /* dialog-footer; */
@@ -636,4 +627,9 @@ export default {
   margin-left: 13%;
   margin-top: 35px;
 }
+.tableData.el-table--border th.el-table__cell {
+  background: #ebeff3;
+}
+/* 去除文本框的*号 */
+
 </style>

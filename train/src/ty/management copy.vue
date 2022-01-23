@@ -1,7 +1,9 @@
 <template>
   <div style="background: #f5f7fa">
     <!-- 班级管理页面头部 -->
-    <div style="background: #fff; width: 99%; margin: 0px auto;padding-bottom:1%;">
+    <div
+      style="background: #fff; width: 99%; margin: 0px auto; padding-bottom: 1%"
+    >
       <div style="margin-top: 8px">
         <!-- 搜索文本框 -->
         <el-input
@@ -19,18 +21,15 @@
           size="small"
           @click="openselect"
         >
-         <el-icon>
+          <el-icon>
             <search />
           </el-icon>
-          </el-button>
+        </el-button>
         <!-- 文字链接     重置 -->
         &nbsp;&nbsp;&nbsp;
         <el-link :underline="false" style="color: #409eff">重&nbsp;置</el-link>
         <!-- 添加班级按钮 -->
-        <el-button
-          type="primary"
-          style="margin-left: 63%"
-          @click="centerDialogVisible = true"
+        <el-button type="primary" style="margin-left: 63%" @click="addclasstk()"
           >添加班级</el-button
         >
       </div>
@@ -101,19 +100,22 @@
           border
           style="width: 95%; margin: 0px auto"
         >
-          <el-table-column fixed prop="classesName" label="班级名称" width="165%">
+          <el-table-column
+            fixed
+            prop="classesName"
+            label="班级名称"
+            width="200%"
+          >
           </el-table-column>
-          <el-table-column prop="classRoomName" label="教室" width="165%">
+          <el-table-column prop="classRoomName" label="教室" width="195%">
           </el-table-column>
-          <el-table-column prop="staffName" label="班主任" width="165%">
+          <el-table-column prop="staffName" label="班主任" width="195%">
           </el-table-column>
-          <el-table-column prop="classesNumber" label="班级人数" width="165%">
+          <el-table-column prop="classesNumber" label="班级人数" width="195%">
           </el-table-column>
-          <el-table-column prop="teacher" label="上课老师" width="165%">
+          <el-table-column prop="classesDate" label="开班时间" width="215%">
           </el-table-column>
-          <el-table-column prop="classesDate" label="开班时间" width="180%">
-          </el-table-column>
-          <el-table-column label="操作" width="220%">
+          <el-table-column label="操作" width="225%">
             <template #default>
               <div style="margin: 0 auto">
                 &nbsp;
@@ -121,14 +123,19 @@
                   type="text"
                   @click="studentCenterDialogVisible = true"
                   >本班学员</el-button
-                >&nbsp; <el-button type="text" @click="schedule = true">本班课表</el-button>&nbsp;&nbsp;
+                >&nbsp;
+                <el-button type="text" @click="schedule = true"
+                  >本班课表</el-button
+                >&nbsp;&nbsp;
                 <el-dropdown>
                   <span class="el-dropdown-link">
                     更多<i-icon class="el-icon--right"><arrowdown /></i-icon>
                   </span>
                   <template #dropdown>
                     <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item @click="centerDialogEditVisible = true">编辑</el-dropdown-item>
+                      <el-dropdown-item @click="centerDialogEditVisible = true"
+                        >编辑</el-dropdown-item
+                      >
                       <el-dropdown-item @click="openEnd">结课</el-dropdown-item>
                       <el-dropdown-item @click="opendelect"
                         >删除</el-dropdown-item
@@ -141,7 +148,7 @@
           </el-table-column>
         </el-table>
         <!-- 分页 -->
-        <div style="margin-left: 2%">
+        <div class="block" style="margin-left: 2%">
           <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
@@ -207,24 +214,28 @@
                 size="small"
                 style="width: 50%"
               >
-                <el-option label="张三" value="shanghai"></el-option>
-                <el-option label="李四" value="beijing"></el-option>
+                <el-option
+                  v-for="item in addselectteacher"
+                  :key="item"
+                  :label="item.staffName"
+                  :value="item.staffId"
+                ></el-option>
               </el-select>
             </el-form-item>
-            <!-- 课程 -->
-            <el-form-item
-              label="课程"
-              prop="curriculum"
-              style="margin-left: 15%;margin-top:1%;"
-            >
+            <!-- 教室 -->
+            <el-form-item label="教室" prop="classrom" style="margin-left: 15%">
               <el-select
-                v-model="rulemationForm.curriculum"
-                placeholder="请选择班主任"
+                v-model="rulemationForm.classrom"
+                placeholder="请选择教室"
                 size="small"
                 style="width: 25%"
               >
-                <el-option label="java" value="shanghai"></el-option>
-                <el-option label="html" value="beijing"></el-option>
+                <el-option
+                  v-for="item in addselectclassrom"
+                  :key="item"
+                  :label="item.classroomName"
+                  :value="item.classroomId"
+                ></el-option>
               </el-select>
             </el-form-item>
             <!-- 开班人数 -->
@@ -240,24 +251,13 @@
                 size="small"
               ></el-input-number>
             </el-form-item>
-            <!-- 教室 -->
-            <el-form-item label="教室" prop="classrom" style="margin-left: 15%">
-              <el-select
-                v-model="rulemationForm.classrom"
-                placeholder="请选择教室"
-                size="small"
-                style="width: 25%"
-              >
-                <el-option label="02201" value="shanghai"></el-option>
-                <el-option label="02202" value="beijing"></el-option>
-              </el-select>
-            </el-form-item>
+
             <!-- 开班时间 -->
             <el-form-item
               label="开班时间"
               class="block"
               prop="opentime"
-              style="margin-left: 52%; margin-top: -5%"
+              style="margin-left: 15%; margin-top: 0%"
             >
               <!-- <span class="demonstration">默认</span> -->
               <el-date-picker
@@ -265,7 +265,7 @@
                 type="date"
                 placeholder="选择日期"
                 size="small"
-                style="width: 50%"
+                style="width: 25%"
               >
               </el-date-picker>
             </el-form-item>
@@ -314,9 +314,9 @@
                   style="height: 8px; margin-right: 2%"
                   size="small"
                 >
-                 <el-icon>
-            <search />
-          </el-icon>
+                  <el-icon>
+                    <search />
+                  </el-icon>
                 </el-button>
                 <!-- 重置按钮 -->
                 <el-link :underline="false" style="color: #409eff"
@@ -365,7 +365,7 @@
             v-if="active == 0"
             style="margin-top: 12px"
             type="primary"
-            @click="submitOneForm('rulemationForm')"
+            @click="abc('rulemationForm')"
             >下一步</el-button
           >
           <el-button
@@ -396,14 +396,10 @@
       >
       </el-input>
       <!-- 搜索按钮 -->
-      <el-button
-        type="primary"
-        style="height: 8px"
-        size="small"
-      >
-       <el-icon>
-            <search />
-          </el-icon>
+      <el-button type="primary" style="height: 8px" size="small">
+        <el-icon>
+          <search />
+        </el-icon>
       </el-button>
       &nbsp;&nbsp;&nbsp;
       <!-- 重置 -->
@@ -513,9 +509,9 @@
               style="height: 8px; margin-right: 2%"
               size="small"
             >
-             <el-icon>
-            <search />
-          </el-icon>
+              <el-icon>
+                <search />
+              </el-icon>
             </el-button>
             <!-- 重置按钮 -->
             <el-link :underline="false" style="color: #409eff"
@@ -550,49 +546,47 @@
     </el-dialog>
     <!-- 本班课表弹框 -->
     <el-dialog
-    v-model="schedule"
-    title="课表信息"
-    width="60%"
-    destroy-on-close
-    center
-  >
-   <el-table
-          class="scheduletable"
-          :data="scheduletable.slice((schedulecurrentPageOne - 1) * schedulesizeOne, schedulecurrentPageOne * classtablehandleSizeChange)"
-          border
-          style="width: 95%; margin: 0px auto"
+      v-model="schedule"
+      title="课表信息"
+      width="60%"
+      destroy-on-close
+      center
+    >
+      <el-table
+        class="scheduletable"
+        :data="
+          scheduletable.slice(
+            (schedulecurrentPageOne - 1) * schedulesizeOne,
+            schedulecurrentPageOne * classtablehandleSizeChange
+          )
+        "
+        border
+        style="width: 95%; margin: 0px auto"
+      >
+        <el-table-column prop="classTime" label="上课时间"> </el-table-column>
+        <el-table-column prop="curriculum" label="课程"> </el-table-column>
+        <el-table-column prop="classrom" label="教室"> </el-table-column>
+        <el-table-column prop="classData" label="课程日期"> </el-table-column>
+        <el-table-column prop="classTeacher" label="上课老师">
+        </el-table-column>
+        <el-table-column prop="classStae" label="状态"> </el-table-column>
+      </el-table>
+      <!-- 分页 -->
+      <div class="block" style="margin-left: 2%; margin-top: 2%">
+        <el-pagination
+          @size-change="classtablehandleSizeChange"
+          @current-change="classtablehandleCurrentChange"
+          :current-page="schedulecurrentPageOne"
+          :page-sizes="schedulesizesOne"
+          :page-size="schedulesizeOne"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="4"
         >
-          <el-table-column prop="classTime" label="上课时间" >
-            
-          </el-table-column>
-          <el-table-column prop="curriculum" label="课程">
-            
-          </el-table-column>
-          <el-table-column prop="classrom" label="教室">
-          </el-table-column>
-          <el-table-column prop="classData" label="课程日期">
-          </el-table-column>
-          <el-table-column prop="classTeacher" label="上课老师">
-          </el-table-column>
-          <el-table-column prop="classStae" label="状态">
-          </el-table-column>
-        </el-table>
-        <!-- 分页 -->
-        <div class="block" style="margin-left: 2%;margin-top:2%;">
-          <el-pagination
-            @size-change="classtablehandleSizeChange"
-            @current-change="classtablehandleCurrentChange"
-            :current-page="schedulecurrentPageOne"
-            :page-sizes="schedulesizesOne"
-            :page-size="schedulesizeOne"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="4"
-          >
-          </el-pagination>
-        </div>
-  </el-dialog>
-  <!-- 编辑弹框 -->
-  <el-dialog
+        </el-pagination>
+      </div>
+    </el-dialog>
+    <!-- 编辑弹框 -->
+    <el-dialog
       v-model="centerDialogEditVisible"
       title="新增班级"
       width="70%"
@@ -635,7 +629,7 @@
             <el-form-item
               label="班主任"
               prop="headmaster"
-              style="margin-left: 52%; margin-top: -6%"
+              style="margin-left: 52%; margin-top: -5%"
             >
               <el-select
                 v-model="editpopForm.headmaster"
@@ -643,8 +637,6 @@
                 size="small"
                 style="width: 50%"
               >
-                <el-option label="张三" value="shanghai"></el-option>
-                <el-option label="李四" value="beijing"></el-option>
               </el-select>
             </el-form-item>
             <!-- 课程 -->
@@ -667,7 +659,7 @@
             <el-form-item
               label="开班人数"
               prop="num"
-              style="margin-left: 52%; margin-top: -6%"
+              style="margin-left: 52%; margin-top: -5%"
             >
               <el-input-number
                 v-model="editpopForm.num"
@@ -693,7 +685,7 @@
               label="开班时间"
               class="block"
               prop="opentime"
-              style="margin-left: 52%; margin-top: -6%"
+              style="margin-left: 52%; margin-top: -5%"
             >
               <!-- <span class="demonstration">默认</span> -->
               <el-date-picker
@@ -747,10 +739,13 @@
                 <!-- 搜索按钮 -->
                 <el-button
                   type="primary"
-                  icon="i-search"
                   style="height: 8px; margin-right: 2%"
                   size="small"
-                ></el-button>
+                >
+                  <el-icon>
+                    <search />
+                  </el-icon>
+                </el-button>
                 <!-- 重置按钮 -->
                 <el-link :underline="false" style="color: #409eff"
                   >重&nbsp;置</el-link
@@ -787,7 +782,9 @@
       </div>
       <template #footer>
         <span class="dialog-footer">
-          <el-button v-if="activeEdit == 1" @click="nextupEdit">上一步</el-button>
+          <el-button v-if="activeEdit == 1" @click="nextupEdit"
+            >上一步</el-button
+          >
           <el-button
             v-if="activeEdit == 0"
             @click="resetEditForm('editpopForm'), nextupEdit"
@@ -816,6 +813,9 @@
 
 
 <script lang="ts">
+import request from "../utils/request";
+import { ElMessage } from "element-plus";
+
 //更多的箭头图标
 import { ArrowDown } from "@element-plus/icons";
 // 弹框
@@ -836,6 +836,10 @@ export default {
       return data;
     };
     return {
+      oldClassName: "",
+      syb: false,
+      jg: true,
+      classs: [],
       //   搜索文本框
       input: "",
       // 添加班级弹框:第二步的搜索框
@@ -895,10 +899,10 @@ export default {
       // 下拉框默认值
       downThree: "教室",
       // 分页
-      
+
       pageSize: 2,
       pageNum: 1,
-      total:0,
+      total: 0,
       // 更多 图标
       components: {
         arrowdown: ArrowDown,
@@ -980,7 +984,7 @@ export default {
           classrom: "19",
           classData: "12345678901",
           classTeacher: "12345587058",
-          classStae:"已上",
+          classStae: "已上",
         },
       ],
       // 本班学员弹框分页
@@ -997,7 +1001,7 @@ export default {
       // 本班课表弹框
       schedule: ref(false),
       // 本班课表弹框：  表格
-       stuclasstable: [
+      stuclasstable: [
         {
           stuclassName: "张三",
           stuclassSex: "男",
@@ -1031,10 +1035,11 @@ export default {
       schedulesizesOne: [1, 2, 3, 4],
       schedulesizeOne: 1,
       schedulecurrentPageOne: 1,
-    
-
-
-     //  编辑弹框
+      // 添加班级按钮   班主任下拉框
+      addselectteacher: [],
+      // 添加班级按钮   教室下拉框
+      addselectclassrom: [],
+      //  编辑弹框
       centerDialogEditVisible: ref(false),
       // 添加班级弹框步骤条
       activeEdit: 0,
@@ -1067,9 +1072,39 @@ export default {
           { required: true, message: "开班时间不能为空", trigger: "blur" },
         ],
       },
-      };
+    };
   },
   methods: {
+    // 表格查询
+    a() {
+      request
+        .get("/classes/a", {
+          params: {
+            pageNum: this.pageNum,
+            pageSize: this.pageSize,
+          },
+        })
+        .then((res) => {
+          this.tableData = res.data.records;
+          this.pageNum = res.data.current;
+          this.pageSize = res.data.size;
+          this.total = res.data.total;
+        });
+    },
+    // 查询添加班级按钮的班主任
+    selectteacher() {
+      request.get("/staff/selectteacher").then((res) => {
+        console.log(res);
+        this.addselectteacher = res;
+      });
+    },
+    // 查询添加班级弹框的教室下拉框
+    selectclassrom() {
+      request.get("/classroom/selectclassrom").then((res) => {
+        console.log("教室" + JSON.stringify(res));
+        this.addselectclassrom = res;
+      });
+    },
     // 编辑弹框 清空弹框内容，关闭弹框
     resetEditForm(editpopForm) {
       this.editpopForm = {};
@@ -1079,10 +1114,18 @@ export default {
     },
     // 添加班级弹框： 清空弹框内容，关闭弹框
     resetForm(rulemationForm) {
-      this.rulemationForm = {};
-      this.rulemationForm.num = 0;
-      // this.$refs[rulemationForm].resetFields();
-      this.centerDialogVisible = false;
+      if(this.jg){
+        this.updatefrom(1)
+        this.rulemationForm = {};
+        this.rulemationForm.num = 0;
+        this.centerDialogVisible = false;
+      }else{
+        
+        this.rulemationForm = {};
+        this.rulemationForm.num = 0;
+        this.centerDialogVisible = false;
+      }
+      
     },
     //日期转换成年龄
     suan() {
@@ -1115,40 +1158,15 @@ export default {
     handleClick(row) {
       console.log(row);
     },
+
     // 分页
     handleSizeChange(pageSize) {
-      var pageInfo={"pageSize":this.pageSize,"pageNum":this.pageNum,"total":this.total}
-      pageInfo.pageSize = pageSize;
-      
-      this.axios
-        .post("http://localhost:9090/classes/query", {
-          params:pageInfo
-        })
-        .then(response => {  
-          console.log("2-------------------------------------------");
-          console.log(response);
-          this.tableData = response.data.data.records;
-          this.total = response.data.data.total;
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+      this.pageSize = JSON.stringify(pageSize);
+      this.a();
     },
     handleCurrentChange(pageNum) {
-      var _this = this;
-      var pageInfo={"pageSize":this.pageSize,"pageNum":this.pageNum,"total":this.total}
-      pageInfo.pageNum = pageNum;
-      this.axios
-        .post("http://localhost:9090/classes/query", {
-          params:pageInfo,
-        })
-        .then(function (response) {
-          console.log("1-------------------------------------------");
-          _this.tableData = response.data.data.records;
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+      this.pageNum = JSON.stringify(pageNum);
+      this.a();
     },
     // 删除弹框
     opendelect() {
@@ -1176,15 +1194,11 @@ export default {
     },
     // 结课弹框
     openEnd() {
-      this.$confirm(
-        "此操作将班级中的学生全部结课，是否继续?",
-        "提示",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
-      )
+      this.$confirm("此操作将班级中的学生全部结课，是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
         .then(() => {
           this.$message({
             type: "success",
@@ -1208,16 +1222,120 @@ export default {
     // 上一步
     nextup() {
       if (this.active-- < 1) this.active = 0;
+      this.updatefrom(0);
+      this.selectclassrom();
+      
+      this.syb=true;
     },
-    // 添加班级弹框:表单确认方法
-    submitOneForm(formName) {
+    //延迟调用修改方法
+    outTimeUpdate(formName){
+      this.selectclass();
+        setTimeout(() => {
+          this.updateclass(formName);
+        }, 1000);
+    },
+    // 修改班级方法
+    updateclass(formName){
       this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.next();
-        } else {
-          console.log("error submit!!");
-          return false;
+            if (valid) {
+              request
+                .post("/classes/updateclass", {
+                  classesName: this.rulemationForm.className,
+                  classesNumber: this.rulemationForm.num,
+                  classesDate: this.rulemationForm.opentime,
+                  classroomId: this.rulemationForm.classrom,
+                  staffId: this.rulemationForm.headmaster,
+                  oldClassName: this.oldClassName,
+                })
+                .then((res) => {
+                  console.log(res);
+                  // this.$refs[formName].resetFields();
+                  // this.rulemationForm=false
+                  ElMessage({
+                    showClose: true,
+                    message: "修改成功",
+                    type: "success",
+                  });
+                })
+                .catch(function (error) {
+                  console.log(error);
+                });
+              this.updatefrom(1);
+              this.next();
+            } else {
+              console.log("error submit!!");
+              return false;
+            }
+          });
+    },
+    // 点击上一步的方法
+    abc(formName) {
+      
+      if (this.syb) {
+        if (this.oldClassName == this.rulemationForm.className) {
+          this.updateclass(formName);
+        }else{
+          this.selectclass();
+          if(this.jg){
+            this.updateclass(formName);
+          }else{
+            this.outTimeUpdate(formName);
+          }
         }
+      } else {
+        this.selectclass();
+        setTimeout(() => {
+          this.submitOneForm(formName);
+        }, 1000);
+      }
+    },
+    // 添加班级弹框:表单确认方法(添加班级)
+    submitOneForm(formName) {
+      if (this.jg) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            request
+              .post("/classes/insertclass", {
+                classesName: this.rulemationForm.className,
+                classesNumber: this.rulemationForm.num,
+                classesDate: this.rulemationForm.opentime,
+                classroomId: this.rulemationForm.classrom,
+                staffId: this.rulemationForm.headmaster,
+              })
+              .then((res) => {
+                console.log(res);
+                // this.$refs[formName].resetFields();
+                // this.rulemationForm=false
+                this.oldClassName = this.rulemationForm.className;
+                ElMessage({
+                  showClose: true,
+                  message: "添加成功",
+                  type: "success",
+                });
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+            this.updatefrom(1);
+            this.next();
+          } else {
+            console.log("error submit!!");
+            return false;
+          }
+        });
+      } else {
+        ElMessage({
+          showClose: true,
+          message: "班级名称已使用，请更换",
+          type: "error",
+        });
+      }
+    },
+    // 添加班级弹框:表单确认方法（添加班级的同时，修改教室状态为已用）
+    updatefrom(zhi) {
+      request.post("/classroom/updateclassrom", {
+        classroomId: this.rulemationForm.classrom,
+        calssroomState: zhi,
       });
     },
     // 添加班级弹框: 开班人数
@@ -1255,8 +1373,6 @@ export default {
       console.log(`当前页: ${val}`);
     },
 
-
-
     // 编辑弹框步骤条
     // 下一步
     nextEdit() {
@@ -1283,26 +1399,42 @@ export default {
     handleChangeEdit(value) {
       console.log(value);
     },
-   
+    //  添加班级弹框方法
+    addclasstk() {
+      this.centerDialogVisible = true;
+      this.selectteacher();
+
+      this.selectclassrom();
+    },
+    // 添加班级弹框 查询所有班级
+    selectclass() {
+      this.classs.length = 0;
+      request
+        .get("/classes/selectsyclass")
+        .then((res) => {
+          var className = this.rulemationForm.className;
+          this.classs = res;
+
+          for (var i = 0; i < this.classs.length; i++) {
+            console.log(this.classs[i].classesName == className);
+
+            if (this.classs[i].classesName == className) {
+              this.jg = false;
+              break;
+            } else {
+              this.jg = true;
+            }
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
   },
-    //直接查询
+  //直接查询
   created() {
-     this.handleCurrentChange(1);
-    // let _this = this;
-    var pageInfo={"pageSize":this.pageSize,"pageNum":this.pageNum,"total":this.total}
-    this.axios
-      .post("http://localhost:9090/classes/query", {
-        params: pageInfo,
-      })
-      .then((response) => {
-        this.tableData = response.data.data.records;
-        this.total = response.data.data.total;
-        this.pageNum=response.data.data.current;
-        // this.pageSize=response.data.data.sizes;
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    // 表格查询
+    this.a();
   },
 };
 </script>
