@@ -18,8 +18,12 @@
       <secondstep v-else-if="this.active==1"></secondstep>
       <thirdstep v-else-if="this.active==2"></thirdstep>
   </div>
+  <!-- 上一步按钮 -->
+  <el-button v-if="this.active==0" style="margin-left: 38%;margin-top: 3%;margin-bottom: 2%;" @click="nextOne">取消</el-button>
+  <el-button v-else-if="this.active<=2" style="margin-left: 38%;margin-top: 3%;margin-bottom: 2%;" @click="nextOne">上一步</el-button>
   <!-- 下一步按钮 -->
-  <el-button style="margin-top: 2%;margin-left:50%;margin-bottom:2%;" @click="next">{{Next}}</el-button>
+  <el-button v-if="this.active<2" style="margin-left:4%;" @click="next">下一步</el-button>
+  <el-button v-else-if="this.active==2" style="margin-left:4%" @click="open">确认提交</el-button>
   
   </div>
 
@@ -38,23 +42,62 @@ import thirdstep from '../ty/thirdstep.vue'
 export default {
   data() {
     return {
-       Next:"下一步",
       active: 0,
+      nextone:"取消",
+      routepath:JSON.parse(sessionStorage.getItem("routepath"))
     }
   },
 
   methods: {
+    open() {
+        this.$confirm('请确认报名信息无误,是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '报名成功!'
+          });
+          this.nextaa()
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消报名'
+          });          
+        });
+      },
+    nextaa(){
+this.routepath.forEach(item => {
+            this.$router.push(item.path)
+          });
+    },
+    // 下一步
     next() {
         this.active++
         if(this.active == 2){
-            this.Next="ok"
+          //  this.routepath.forEach(item => {
+          //   this.$router.push(item.path)
+          // });
         }
       if (this.active > 2) {
-          this.Next="下一步"
       this.active = 0
       }
       
-      
+    },
+    // 上一步
+    nextOne() {
+        
+        if(this.active == 0){
+          this.routepath.forEach(item => {
+            this.$router.push(item.path)
+          });
+           
+        }
+        this.active--
+      if (this.active <1) {
+      this.active = 0
+      }
     },
   }, 
   components:{
