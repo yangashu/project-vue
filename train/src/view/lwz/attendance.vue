@@ -1,6 +1,6 @@
 <template>
   <div class="body">
-    <el-row :gutter="24" class="row1">
+    <el-row :gutter="24">
       <el-select v-model="a" class="select1">
         <el-option value="员工姓名">员工姓名</el-option>
         <el-option value="联系电话">联系电话</el-option>
@@ -15,9 +15,10 @@
       <el-button type="danger" style="height: 30px" @click="selectLike()">
         <el-icon><search /></el-icon>
       </el-button>
+      <el-button type="primary" @click="ab()" :disabled="this.disabled">打卡</el-button>
     </el-row>
     <el-row :gutter="24">
-      <el-table ref="mt" :data="staffData" style="width: 100%">
+      <el-table ref="mt" :data="staffData" style="width: 99%;margin-left:1%;">
         <el-table-column prop="staffId" label="员工编号"></el-table-column>
         <el-table-column prop="personalName" label="姓名"></el-table-column>
         <el-table-column
@@ -36,15 +37,6 @@
         <el-table-column label="操作">
           <template #default="scope">
             <el-button
-              v-if="scope.row.signState == 0"
-              type="primary"
-              @click="ab()"
-              >打卡</el-button
-            >
-            <el-button v-if="scope.row.signState == 1" type="danger" disabled
-              >打卡</el-button
-            >
-            <el-button
               type="primary"
               @click="abb(scope.row.staffId, scope.row.personalName)"
               >查看本月考勤</el-button
@@ -62,6 +54,7 @@
         :page-size="pageInfo.pagesize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="pageInfo.total"
+        style="margin-left:1%"
       >
       </el-pagination>
     </el-row>
@@ -143,11 +136,12 @@ export default {
       b: "",
       name: "",
       staffData: [],
+      disabled:false,
       daaa: new Date(),
       canData: [],
       pageInfo: {
         currentPage: 1,
-        pagesize: 2,
+        pagesize: 3,
         total: 0,
       },
       videoWidth: 250,
@@ -171,7 +165,7 @@ export default {
       this.pageInfo.currentPage = page;
       var ps = qs.stringify(this.pageInfo);
       request
-        .get("/satffsign/two", { params: this.pageInfo })
+        .get("/canton-satffsign/two", { params: this.pageInfo })
         .then(response => {
           // console.log("1-------------------------------------------")
           // console.log(response.data)
@@ -187,7 +181,7 @@ export default {
       var ps = qs.stringify(this.pageInfo);
       // console.log(ps);
       request
-        .get("http://localhost:9090/satffsign/two", { params: this.pageInfo })
+        .get("/canton-satffsign/two", { params: this.pageInfo })
         .then(response => {
           // console.log("2-------------------------------------------")
           // console.log(response.data)
@@ -279,7 +273,7 @@ export default {
       let fData = new FormData();
       fData.append("url", uu);
       request
-        .post("http://localhost:9090/Face/one", fData)
+        .post("/Face/one", fData)
         .then((response) => {
           // console.log(response)
           if (response.code == "0") {
@@ -289,6 +283,7 @@ export default {
             });
             clearInterval(this.aaa);
             this.stopNavigator();
+            this.disabled=true;
           } else {
             this.$message({
               type: "error",
@@ -341,7 +336,7 @@ export default {
       this.dialogVisible1 = true;
       this.name = name;
       request
-        .post("/one?staffId=" + staffId)
+        .post("/canton-attendance/one?staffId=" + staffId)
         .then((response) => {
           console.log(response);
           this.canData.length = 0;
@@ -366,7 +361,7 @@ export default {
       var mytotal = this.pageInfo.total;
       var obj = { information, mode, mycurrentPage, mypagesize, mytotal };
       request
-        .get("http://localhost:9090/personal/one", { params: obj })
+        .get("/sys-personal/one", { params: obj })
         .then((response) => {
           this.staffData = response.records;
           this.pageInfo.total = response.total;
@@ -378,7 +373,7 @@ export default {
   },
   created() {
     request
-      .get("/satffsign/two", { params: this.pageInfo })
+      .get("/canton-satffsign/two", { params: this.pageInfo })
       .then((response) => {
         this.staffData = response.records;
         this.pageInfo.total = response.total;
@@ -397,13 +392,9 @@ export default {
   /* font-size: 20px; */
 }
 .body {
-  width: 100%;
-  height: 93vh; 
+  width: 99%;
+  height: 93vh;
   background-color: rgb(245, 247, 250);
-}
-.row1 {
-  width: 100%;
-  margin-bottom: 1%;
 }
 .input1 {
   margin-left: 0.2%;

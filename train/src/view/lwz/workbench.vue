@@ -182,7 +182,7 @@
         </el-card>
       </el-col>
     </el-row>
-    <el-row id="row5" :gutter="24">
+    <!-- <el-row id="row5" :gutter="24">
       <el-col id="col7" :span="24">
         <el-card shadow="none" style="height: 400px">
           <div style="width: 100%; height: 30px; margin-top: -30px">
@@ -192,7 +192,7 @@
           <div id="abc5" style="width: 100%; height: 350px"></div>
         </el-card>
       </el-col>
-    </el-row>
+    </el-row> -->
   </div>
 </template>
 <script>
@@ -286,26 +286,26 @@ export default {
       this.myChartAll.showLoading();  
 
       request
-        .get("http://localhost:9090/student/one")
+        .get("/recruit-student/one")
         .then((response) => {
-          this.optionAll.series[0].data[0].value = parseInt(response.data);
-          this.zd=parseInt(response.data);
+          this.optionAll.series[0].data[0].value = parseInt(response);
+          this.zd=parseInt(response);
         })
         .catch(function (error) {
           console.log(error);
         });
       request
-        .get("http://localhost:9090/studentattend/one")
+        .get("/ect-studentattend/one")
         .then((response) => {
-          this.optionAll.series[0].data[2].value = parseInt(response.data);
+          this.optionAll.series[0].data[2].value = parseInt(response);
         })
         .catch(function (error) {
           console.log(error);
         });
       request
-        .get("http://localhost:9090/studentattend/two")
+        .get("/ect-studentattend/two")
         .then((response) => {
-          this.optionAll.series[0].data[1].value = parseInt(response.data);
+          this.optionAll.series[0].data[1].value = parseInt(response);
         })
         .catch(function (error) {
           console.log(error);
@@ -350,7 +350,7 @@ export default {
         ],
       };
       this.myChart2.showLoading();
-      request.get("http://localhost:9090/notice/one")
+      request.get("/news-notice/one")
       .then((response) => {
         this.option2.series[0].data[0].value = parseInt(response);
         // this.zd=parseInt(response.data);
@@ -358,7 +358,7 @@ export default {
       .catch(function (error) {
         console.log(error);
       });
-      request.get("http://localhost:9090/receiving/one")
+      request.get("/personal-receiving/one")
       .then((response) => {
         this.option2.series[0].data[1].value = parseInt(response);
         // this.zd=parseInt(response.data);
@@ -376,7 +376,7 @@ export default {
         title:{
           left:"center",
           top: '5%',
-          text:"2021-12月份",
+          text:"",
           textStyle:{
             color:'red',
             fontSize:16
@@ -401,10 +401,41 @@ export default {
         ],
       };
       this.myChart4.showLoading();
-      request.post("http://localhost:9090/follow/one")
+      request.post("/recruit-follow/one")
       .then(respone =>{
-        
-        this.option3.title.text=respone[0].followDate.substring(0,7)+"月份";
+        console.log("fol",respone);
+        if(respone.length==0){
+          var newDate=new Date()
+        var year=parseInt(newDate.getFullYear());//年份
+        var month=parseInt(newDate.getMonth()+1);//月份
+        this.option4.title.text=year+"-"+month+"月份";
+        //判断平年闰年
+        if(year/4==0 && year/100!=0){
+          if(month==1 || month==3 || month==5 || month==7 || month==8 || month==10 || month==12){
+            this.option4.xAxis.data=this.month4;
+            this.option4.series[0].data=this.yy4;
+          }else if(month==2){
+            this.option4.xAxis.data=this.month2;
+            this.option4.series[0].data=this.yy2;
+          }else{
+            this.option4.xAxis.data=this.month3;
+            this.option4.series[0].data=this.yy3;
+          }
+        }else{
+          if(month==1 || month==3 || month==5 || month==7 || month==8 || month==10 || month==12){
+            this.option4.xAxis.data=this.month4;
+            this.option4.series[0].data=this.yy4;
+          }else if(month==2){
+            this.option4.xAxis.data=this.month1;
+            this.option4.series[0].data=this.yy1;
+          }else{
+            this.option4.xAxis.data=this.month3;
+            this.option4.series[0].data=this.yy3;
+          }
+        }
+
+        }else{
+        this.option4.title.text=respone[0].followDate.substring(0,7)+"月份";
         var year=parseInt(respone[0].followDate.substring(0,4));//年份
         var month=parseInt(respone[0].followDate.substring(5,7));//月份
         //判断平年闰年
@@ -436,6 +467,7 @@ export default {
           var day=parseInt(respone[i].followDate.substring(8,10));
           this.option4.series[0].data[day-1]=this.option4.series[0].data[day-1]+1;
         }
+        }
       })
       .catch(error =>{
         console.log(error);
@@ -449,7 +481,7 @@ export default {
         title:{
           left:"center",
           top: '5%',
-          text:"2021-12月份",
+          text:"",
           textStyle:{
             color:'red',
             fontSize:16
@@ -474,9 +506,40 @@ export default {
         ],
       };
 
-      request.get("http://localhost:9090/student/two")
+      request.get("/recruit-student/two")
       .then(respone =>{
-        
+        console.log("stu",respone);
+        if(respone.length==0){
+          var newDate=new Date()
+        var year=parseInt(newDate.getFullYear());//年份
+        var month=parseInt(newDate.getMonth()+1);//月份
+        this.option3.title.text=year+"-"+month+"月份";
+        //判断平年闰年
+        if(year/4==0 && year/100!=0){
+          if(month==1 || month==3 || month==5 || month==7 || month==8 || month==10 || month==12){
+            this.option3.xAxis.data=this.month4;
+            this.option3.series[0].data=this.y4;
+          }else if(month==2){
+            this.option3.xAxis.data=this.month2;
+            this.option3.series[0].data=this.y2;
+          }else{
+            this.option3.xAxis.data=this.month3;
+            this.option3.series[0].data=this.y3;
+          }
+        }else{
+          if(month==1 || month==3 || month==5 || month==7 || month==8 || month==10 || month==12){
+            this.option3.xAxis.data=this.month4;
+            this.option3.series[0].data=this.y4;
+          }else if(month==2){
+            this.option3.xAxis.data=this.month1;
+            this.option3.series[0].data=this.y1;
+          }else{
+            this.option3.xAxis.data=this.month3;
+            this.option3.series[0].data=this.y3;
+          }
+        }
+
+        }else{
         this.option3.title.text=respone[0].studentEntrance.substring(0,7)+"月份";
         var year=parseInt(respone[0].studentEntrance.substring(0,4));//年份
         var month=parseInt(respone[0].studentEntrance.substring(5,7));//月份
@@ -508,6 +571,7 @@ export default {
         for(var i=0;i<respone.length;i++){
           var day=parseInt(respone[i].studentEntrance.substring(8,10));
           this.option3.series[0].data[day-1]=this.option3.series[0].data[day-1]+1;
+        }
         }
       })
       .catch(error =>{
@@ -627,26 +691,26 @@ export default {
       myChart.setOption(option);
     },
     myone() {
-      this.axios
-        .get("http://localhost:9090/staff/one")
+      request
+        .get("/sys-staff/one")
         .then(response => {
-          this.b = parseInt(response.data.length);
+          this.b = parseInt(response.length);
         })
         .catch(function (error) {
           console.log(error);
         });
-      this.axios
-        .get("http://localhost:9090/satffsign/one")
+      request
+        .get("/canton-satffsign/one")
         .then(response => {
-          this.a = parseInt(response.data);
+          this.a = parseInt(response);
           this.c = parseFloat(((this.a / this.b) * 100).toFixed(2));
         })
         .catch(function (error) {
           console.log(error);
         });
-      this.axios.get("http://localhost:9090/classes/one")
+      request.get("/ect-classes/one")
         .then(respone =>{
-          this.bjs=parseInt(respone.data)
+          this.bjs=parseInt(respone)
         })
         .catch(error =>{
           console.log(error)
@@ -663,7 +727,7 @@ export default {
       this.myChart4.hideLoading();
     },
     mythree(){
-      this.$router.push("/punch");
+      this.$router.push("/attendance");
     }
   },
   computed: {
@@ -673,10 +737,10 @@ export default {
     this.myEchart2();
     this.myEchart3();
     this.myEchart4();
-    this.myEchart5();
+    // this.myEchart5();
     setInterval(() => {
       this.mytwo()
-    }, 500);
+    }, 1500);
   },
   created() {
     this.myone();

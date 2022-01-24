@@ -4,7 +4,7 @@ import layout from '../layout/layout.vue';
 import recruit from '../view/recruit.vue';
 import role from '../view/role.vue';
 import workbench from '../view/lwz/workbench.vue';
-import punch from "../view/lwz/punch.vue";
+import attendance from "../view/lwz/attendance.vue";
 import staffManagement from "../view/lwz/staffManagement.vue";
 import deptManagement from "../view/lwz/deptManagement.vue";
 import zixdj from '../ty/registration.vue'
@@ -15,10 +15,10 @@ const routes=[
     { path: '/', component: layout, redirect: "/workbench",
     children:[
         { path: '/workbench', component: workbench },
-        { path: '/attendance', component: punch},
+        { path: '/attendance', component: attendance},
         { path: '/staffManagement', component: staffManagement},
         { path: '/deptManagement', component: deptManagement},
-        { path: '/punch', component: punch},
+        { path: '/induction', component: ()=>import('../view/lwz/induction.vue')},
         { path: '/recruit', component: recruit } ,
         { path: '/personal', component: role },
         // syz

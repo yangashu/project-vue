@@ -189,6 +189,7 @@
 <script>
 import { Search } from "@element-plus/icons";
 import qs from "qs";
+import request from '../../utils/request'
 export default {
   data() {
     return {
@@ -204,7 +205,7 @@ export default {
       dialogVisible2: false,
       pageInfo: {
         currentPage: 1,
-        pagesize: 2,
+        pagesize: 3,
         total: 0,
         like: "",
       },
@@ -219,12 +220,12 @@ export default {
       var _this = this;
       this.pageInfo.currentPage = page;
       var ps = qs.stringify(this.pageInfo);
-      this.axios
-        .get("http://localhost:9090/dept/one", { params: this.pageInfo })
+      request
+        .get("/sys-dept/one", { params: this.pageInfo })
         .then((response) => {
           // console.log("1-------------------------------------------")
           // console.log(response.data)
-          this.deptData = response.data.records;
+          this.deptData = response.records;
         })
         .catch(function (error) {
           console.log(error);
@@ -236,13 +237,13 @@ export default {
       this.pageInfo.pagesize = size;
       var ps = qs.stringify(this.pageInfo);
       // console.log(ps);
-      this.axios
-        .get("http://localhost:9090/dept/one", { params: this.pageInfo })
+      request
+        .get("/sys-dept/one", { params: this.pageInfo })
         .then((response) => {
           // console.log("2-------------------------------------------")
           // console.log(response.data)
-          this.deptData = response.data.records;
-          this.pageInfo.total = response.data.total;
+          this.deptData = response.records;
+          this.pageInfo.total = response.total;
         })
         .catch(function (error) {
           console.log(error);
@@ -250,80 +251,95 @@ export default {
     },
     //分页方法刷新页面
     aaa() {
-      this.axios
-        .get("http://localhost:9090/dept/one", { params: this.pageInfo })
+      request
+        .get("/sys-dept/one", { params: this.pageInfo })
         .then((response) => {
-          this.deptData = response.data.records;
-          this.pageInfo.total = response.data.total;
+          this.deptData = response.records;
+          this.pageInfo.total = response.total;
         })
         .catch((error) => {
           console.log(error);
         });
     },
-    //查询方法
+    //添加部门
     addDept() {
-      this.axios
-        .get("http://localhost:9090/dept/two?deptName=" + this.c)
+      if(this.c==""){
+        this.$message({
+          type: "error",
+          message: "部门名字不可以为空！",
+        });
+      }else{
+        request
+        .get("/sys-dept/two?deptName=" + this.c)
         .then((response) => {
-          if (response.data.code == "0") {
+          if (response.code == "0") {
             this.$message({
               type: "success",
-              message: response.data.msg,
+              message: response.msg,
             });
             this.dialogVisible = false;
             this.aaa();
           } else {
             this.$message({
               type: "error",
-              message: response.data.msg,
+              message: response.msg,
             });
           }
         })
         .catch((error) => {
           console.log(error);
         });
+      }
+      
     },
     //修改方法
     updateDept() {
+      if(this.d==""){
+        this.$message({
+          type: "error",
+          message: "部门名字不可以为空！",
+        });
+      }else{
       var dept = { id: this.id, deptName: this.d };
-      this.axios
-        .get("http://localhost:9090/dept/three", { params: dept })
+      request
+        .get("/sys-dept/three", { params: dept })
         .then((response) => {
-          if (response.data.code == "0") {
+          if (response.code == "0") {
             this.$message({
               type: "success",
-              message: response.data.msg,
+              message: response.msg,
             });
             this.dialogVisible1 = false;
             this.aaa();
           } else {
             this.$message({
               type: "error",
-              message: response.data.msg,
+              message: response.msg,
             });
           }
         })
         .catch((error) => {
           console.log(error);
         });
+      }
     },
     //删除方法
     deleteDept() {
       if (this.rs == 0) {
-        this.axios
-          .get("http://localhost:9090/dept/four?id=" + this.id)
+        request
+          .get("/sys-dept/four?id=" + this.id)
           .then((response) => {
-            if (response.data.code == "0") {
+            if (response.code == "0") {
               this.$message({
                 type: "success",
-                message: response.data.msg,
+                message: response.msg,
               });
               this.dialogVisible2 = false;
               this.aaa();
             } else {
               this.$message({
                 type: "error",
-                message: response.data.msg,
+                message: response.msg,
               });
             }
           })
@@ -340,23 +356,24 @@ export default {
     //模糊查询方法
     selectLike() {
       this.pageInfo.like = this.a;
-      this.axios
-        .get("http://localhost:9090/dept/five", { params: this.pageInfo })
+      request
+        .get("/sys-dept/five", { params: this.pageInfo })
         .then((response) => {
-          this.deptData = response.data.records;
-          this.pageInfo.total = response.data.total;
+          this.deptData = response.records;
+          this.pageInfo.total = response.total;
         })
         .catch((error) => {
           console.log(error);
         });
     },
+    
   },
   created() {
-    this.axios
-      .get("http://localhost:9090/dept/one", { params: this.pageInfo })
+    request
+      .get("/sys-dept/one", { params: this.pageInfo })
       .then((response) => {
-        this.deptData = response.data.records;
-        this.pageInfo.total = response.data.total;
+        this.deptData = response.records;
+        this.pageInfo.total = response.total;
       })
       .catch((error) => {
         console.log(error);
