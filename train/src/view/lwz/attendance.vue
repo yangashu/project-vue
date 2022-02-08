@@ -15,7 +15,7 @@
       <el-button type="danger" style="height: 30px" @click="selectLike()">
         <el-icon><search /></el-icon>
       </el-button>
-      <el-button type="primary" @click="ab()" :disabled="this.disabled">打卡</el-button>
+      <el-button type="primary" @click="ab()" :disabled="signDisabled">打卡</el-button>
     </el-row>
     <el-row :gutter="24">
       <el-table ref="mt" :data="staffData" style="width: 99%;margin-left:1%;">
@@ -136,7 +136,7 @@ export default {
       b: "",
       name: "",
       staffData: [],
-      disabled:false,
+      signDisabled:false,
       daaa: new Date(),
       canData: [],
       pageInfo: {
@@ -283,7 +283,7 @@ export default {
             });
             clearInterval(this.aaa);
             this.stopNavigator();
-            this.disabled=true;
+            this.signDisabled=true;
           } else {
             this.$message({
               type: "error",
@@ -377,6 +377,14 @@ export default {
       .then((response) => {
         this.staffData = response.records;
         this.pageInfo.total = response.total;
+        var id=JSON.parse(sessionStorage.getItem("user")).staff.staffId
+        response.records.forEach((e)=>{
+          if(id==e.staffId){
+            if(e.signState==1){
+              this.signDisabled=true
+            }
+          }
+        })
       })
       .catch(function (error) {
         console.log(error);

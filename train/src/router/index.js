@@ -14,11 +14,20 @@ import freshman from '../ty/freshman.vue'
 const routes=[
     { path: '/', component: layout, redirect: "/workbench",
     children:[
+        //lwz
         { path: '/workbench', component: workbench },
         { path: '/attendance', component: attendance},
-        { path: '/staffManagement', component: staffManagement},
+        { path: '/staffManagement', component: staffManagement,
+            redirect:'/staffManagementOne',
+            children:[
+                {path:'/staffManagementOne', component: ()=>import('../view/lwz/staffManagementone.vue')},
+                {path:'/staffManagementTwo', component: ()=>import('../view/lwz/staffManagementtwo.vue')},
+                {path:'/staffManagementThree', component: ()=>import('../view/lwz/staffManagementthree.vue')}
+            ]
+        },
         { path: '/deptManagement', component: deptManagement},
         { path: '/induction', component: ()=>import('../view/lwz/induction.vue')},
+        ////////////
         { path: '/recruit', component: recruit } ,
         { path: '/personal', component: role },
         // syz
