@@ -26,9 +26,10 @@ const routes=[
         { path: '/menu', component: ()=>import ('../syz/view/menu/menu.vue') },
         { path: '/channel', component: ()=>import ('../syz/view/channel/channel.vue') },
         { path: '/position', component: ()=>import('../syz/view/position/position.vue') },
-        { path: '/finance', component: ()=>import('../syz/view/Finance/finance.vue') },
+        { path: '/payment', component: ()=>import('../syz/view/Payment/payment copy.vue') },
         { path: '/order', component: ()=>import('../syz/view/test/b.vue') },
-
+        { path: '/flow', component: ()=>import('../syz/view/test/a.vue') },
+        { path: '/school', component: ()=>import('../syz/view/Finance/expenditure.vue') },
 
         {path:"/freshman", component: freshman},
         { path: '/management', component: management},
