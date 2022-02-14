@@ -1,23 +1,11 @@
 <template>
   <div>
     <div style="margin-bottom: 10px">
-      <!-- 功能区 -->
-      <div style="background: #fff; padding: 10px 0">
-        <el-button
-          type="primary"
-          class="function"
-          @click="this.importdialogVisible = true"
-          ><el-icon><img src="../../../img/daoru.png" alt="" /> </el-icon
-          >&nbsp;&nbsp;导入</el-button
-        >
-        <el-button type="primary" class="function" @click="exportrevenue()"
-          ><el-icon><img src="../../../img/export.png" alt="" /> </el-icon
-          >&nbsp;&nbsp;导出</el-button
-        >
-      </div>
       <!-- 搜索 -->
-      <div style="margin: 10px 0 25px; text-align: center">
-        <el-select v-model="value" placeholder="Select">
+       <!-- text-align: center; -->
+      <div style="margin: 10px 0 25px;">
+        状态：
+        <el-select v-model="state" placeholder="选择审核状态" style="padding:0 20px 0 0" >
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -27,9 +15,51 @@
           >
           </el-option>
         </el-select>
+        学员： <el-input
+      v-model="search"
+      class="input"
+      placeholder="输入学员姓名"
+    ></el-input>
+    <span class="demonstration">缴费日期：</span>
+    <el-date-picker
+      v-model="value1"
+      type="daterange"
+      value-format="YYYY-MM-DD"
+      format="YYYY-MM-DD"
+      range-separator="至"
+      start-placeholder="开始日期"
+      end-placeholder="结束日期"
+      @change="a">
+    </el-date-picker>
+      </div>
+        <!-- 功能区 -->
+        
+      <div style="background: #fff; padding: 10px 0;float:left">
+        <el-button type="primary" class="function" icon="search" size="16px" @click="load"
+         >搜素</el-button
+        >
+         <el-button type="primary" class="function" @click="updateBatchbyid()"
+         ><el-icon><img src="../../../img/shenhetongguo.png" alt="" style="width:16px;height:16px;vertical-align: middle"/> </el-icon
+          >&nbsp;&nbsp;审核通过</el-button
+        >
+        <el-button
+          type="primary"
+          class="function"
+          @click="this.importdialogVisible = true"
+          ><el-icon><img src="../../../img/daoru.png" alt="" style="width:12px;height:12px;vertical-align: middle"/> </el-icon
+          >&nbsp;&nbsp;导入</el-button
+        >
+        <el-button type="primary" class="function" @click="exportrevenue()"
+          ><el-icon><img src="../../../img/export.png" alt="" style="width:12px;height:12px;vertical-align: middle"/> </el-icon
+          >&nbsp;&nbsp;导出</el-button
+        >
+        <el-button type="primary" class="function" @click="this.search='',this.state='',this.value1=''"
+          ><el-icon><img src="../../../img/重置.png" alt="" style="width:12px;height:12px;vertical-align: middle"/> </el-icon
+          >&nbsp;&nbsp;重置</el-button
+        >
       </div>
       <!-- 消息 -->
-      <div style="text-align: right; margin: 10px 140px">
+      <!-- <div style="text-align: right; margin: 10px 140px">
         <img
           src="../../../img/通知 铃铛 消息.png"
           alt=""
@@ -37,7 +67,7 @@
           @click="examineList()"
         />
         <span style="margin-left: -15px; color: #fff">{{ conut }}</span>
-      </div>
+      </div> -->
     <!-- 回显数据表格 -->
       <el-table
         :data="revenueTableData"
@@ -50,10 +80,11 @@
           textAlign: 'center',
         }"
         :cell-style="{ textAlign: 'center' }"
+        @selection-change="handleSelectionChange"
       >
       <el-table-column type="selection" width="55"> </el-table-column>
         <el-table-column label="缴费日期" prop="paymoneyDate" />
-        <el-table-column label="缴费学员" prop="student.studentName" />
+        <el-table-column label="缴费学员" prop="studentName" />
         <el-table-column label="缴费金额" prop="paymoneyMoney" />
         <el-table-column label="缴费方式" prop="paymoneyMode" />
         <!-- <template #default="scope">
@@ -68,29 +99,23 @@
             }}
           </template> -->
         <!-- </el-table-column> -->
-        <el-table-column label="录入人" prop="staff.staffName" />
+        <el-table-column label="录入人" prop="staffName" />
           <el-table-column label="状态" prop="incomeState">
               <template #default="scope">
-                  <img v-if="scope.row.incomeState==0" src="../../../img/daoru.png" alt="">
-            <img v-else src="../../../img/export.png" alt="">
+                  <img v-if="scope.row.incomeState==0" src="http://soft.hkdemo.cn/images/tsm/02.png" style="" alt="">
+            <img v-else src="http://soft.hkdemo.cn/images/tsm/14.png" alt="">
           </template>
         </el-table-column>
-        <el-table-column align="right">
-          <template #header>
-            <el-input
-              v-model="search"
-              size="small"
-              placeholder="Type to search"
-              @keyup="load()"
-            />
-          </template>
+        <el-table-column label="打印" align="right">
+          
           <template #default="scope">
-            <el-button size="small" type="text" @click="details(scope.row)"
-              >详情</el-button
+            <el-button size="small" type="text" @click="exportrevenueByid(scope.row.paymoneyId)"
+              ><img src="http://soft.hkdemo.cn/images/print.gif" alt=""></el-button
             >
           </template>
         </el-table-column>
       </el-table>
+      <p style="margin:8px"> 缴费总额：￥{{TotalPayment}} | 已审核：￥{{Reviewed}} | 未审核：￥{{NotApproved}} | 现金：￥{{cash}} | 刷卡：￥{{payByCard}} | 微信支付：￥{{WechatPayment}} | 其他：￥{{other}}</p>
 
       <!-- 分页 -->
       <el-pagination
@@ -245,6 +270,7 @@
       </el-dialog>
 
     </div>
+
   </div>
 </template>
 
@@ -253,6 +279,14 @@ import request from "../../../utils/request";
 export default {
   data() {
     return {
+      TotalPayment:0,//缴费总额
+      Reviewed:0,//已审核
+      NotApproved:0,//未审核
+      cash:0,//现金
+      payByCard:0,//刷卡
+      WechatPayment:0,//微信支付
+      other:0,//其他
+      value1:"",
       conut: 0,
       importdialogVisible: false,
       dialogVisible: false,
@@ -264,8 +298,8 @@ export default {
       },
       limitNum: 1,
       fileList: [],
-
-      value: "",
+      ids:[],
+      state: "",
       currentPage: 1, //页码
       pageSize: 5, //每页条数
       total: 0, //总条数
@@ -273,17 +307,79 @@ export default {
       revenueTableData: [],
       revenuedetails: [],
       examinetableData: [],
+       options: [{
+          value: '0',
+          label: '已审核'
+        }, {
+          value: '1',
+          label: '未审核'
+        }],
     };
   },
 
   methods: {
+    // 获取选中的数据
+    handleSelectionChange(val) {
+      this.ids = val.map((v) => v.paymoneyId); // [{id,name}, {id,name}] => [id,id]
+    },
+    //审核通过
+    updateBatchbyid(){
+       if(this.ids.length>0){
+      request.put("/PayAndStaffAndstudent/update",this.ids)
+      .then((res)=>{
+        if(res.code=="200"){
+          this.$message.success(res.msg)
+          this.load()
+        }else{
+          this.$message.error(res.msg)
+        }
+      })
+       }else{
+         this.$message.warning("请勾选需要通过的数据")
+       }
+    },
+   
+    // 日期（暂放）
+    // a(s){
+    //   s.forEach(element => {
+    //    console.error(element); 
+    //   });
+    // },
      handleClose(done) {
       this.fileList=[]
       done();
     },
+     // 根据id导出
+    exportrevenueByid(id) {
+      console.error(id);
+      request.post("/PayAndStaffAndstudent/exportByid",id).then((res) => {
+        if(res.code=="200"){
+            this.$notify.success({
+                title:"还不错",
+                message:res.msg
+            })
+        }else{
+            this.$notify.error({
+                title:"错误",
+                message:"哎呀！出问题了"
+            })
+        }
+      }).catch(error=>{
+          this.$notify.error({
+                title:"错误",
+                message:"哎呀！出问题了"
+            })
+      });
+    },
     // 导出
     exportrevenue() {
-      request.get("/finance-pay/export").then((res) => {
+      const page1={ 
+        currentPage:this.currentPage,
+      pageSize:this.pageSize,
+     search:this.search
+     }
+      
+      request.post("/PayAndStaffAndstudent/export",page1).then((res) => {
         if(res.code=="200"){
             this.$notify.success({
                 title:"还不错",
@@ -304,13 +400,32 @@ export default {
     },
     //   分页
     load() {
-      request
-        .get("/finance-pay/paging", {
-          params: {
-            current: this.currentPage,
-            pagesize: this.pageSize,
+      if(this.value1!=""){
+        this.value1.forEach(e=>{
+        console.error(e);
+      })
+      }
+      
+      let T=0;
+      let N=0
+      let R=0
+      let C=0
+      let W=0
+      let P=0
+      let O=0;
+      const paging={
+       currentPage: this.currentPage,
+            pageSize: this.pageSize,
             search: this.search,
-          },
+      }
+      request
+        .post("/PayAndStaffAndstudent/paging", {
+          // params: {
+           Paging:paging,
+           state:this.state,
+           data :this.value1[0],
+           data1:this.value1[1]
+          // },
         })
         .then((res) => {
           if (res.code == "200") {
@@ -318,6 +433,32 @@ export default {
             this.currentPage = res.data.current;
             this.pageSize = res.data.size;
             this.total = res.data.total;
+            
+            res.data.records.forEach(e=>{
+              // if()
+            T+=e.paymoneyMoney
+            if(e.incomeState==1){
+              N+=e.paymoneyMoney
+            }else{
+               R+=e.paymoneyMoney
+            }
+            if(e.paymoneyMode=="现金"){
+              C+=e.paymoneyMoney
+            }else if(e.paymoneyMode=="微信支付"){
+                W+=e.paymoneyMoney
+            }else if(e.paymoneyMode=="刷卡"){
+                P+=e.paymoneyMoney
+            }else{
+                O+=e.paymoneyMoney
+            }
+          })
+          this.TotalPayment=T;
+          this.NotApproved=N;
+          this.Reviewed=R;
+          this.cash=C;
+          this.WechatPayment=W;
+          this.payByCard=P;
+          this.other=O;
           } else {
             this.$message.error(res.msg);
           }
@@ -378,8 +519,11 @@ export default {
     // 文件状态改变时的钩子
 
     fileChange(file, fileList) {
-      this.fileList.pop();
+      // this.fileList.pop();
+      this.fileList=[]
+     
       this.fileList.push(file.raw);
+      
     },
 
     // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
@@ -421,12 +565,13 @@ export default {
         let form = new FormData();
         form.append('file', this.fileList[0]);
         // 请求自己服务器上传文件的接口
-        request.post("/finance-pay/import",form,this.headers).then(res=> {
+        request.post("/PayAndStaffAndstudent/import",form,this.headers).then(res=> {
           if (res.code==="200"){
            this.$message.success(res.msg)
            this.importdialogVisible=false
            this.fileList=[]
            this.load()
+          //  this.paymoneyMoney();
           }else{
             this.$message.error("文件上传有误！！！")
           }
@@ -438,6 +583,7 @@ export default {
   mounted() {
     this.load();
     // this.conutByResult();
+    //  this.paymoneyMoney();
   },
 };
 </script>
@@ -477,5 +623,10 @@ img {
   cursor: pointer;
   outline: 0;
   margin: 0 10px;
+}
+.input{
+  width: 200px;
+  height: 30px;
+  padding:0 20px 0 0;
 }
 </style>

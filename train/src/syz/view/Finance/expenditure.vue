@@ -15,10 +15,10 @@
           >
           </el-option>
         </el-select>
-        学员： <el-input
+        经办人: <el-input
       v-model="search"
       class="input"
-      placeholder="输入学员姓名"
+      placeholder="输入经办人姓名"
     ></el-input>
     <span class="demonstration">缴费日期：</span>
     <el-date-picker
@@ -38,28 +38,28 @@
         <el-button type="primary" class="function" icon="search" size="16px" @click="load"
          >搜素</el-button
         >
-         <el-button type="primary" class="function"
+         <el-button type="primary" class="function" @click="updateBatchbyid()"
          ><el-icon><img src="../../../img/shenhetongguo.png" alt="" style="width:16px;height:16px;vertical-align: middle"/> </el-icon
           >&nbsp;&nbsp;审核通过</el-button
         >
-        <el-button
+        <!-- <el-button
           type="primary"
           class="function"
           @click="this.importdialogVisible = true"
           ><el-icon><img src="../../../img/daoru.png" alt="" style="width:12px;height:12px;vertical-align: middle"/> </el-icon
           >&nbsp;&nbsp;导入</el-button
-        >
+        > -->
         <el-button type="primary" class="function" @click="exportrevenue()"
           ><el-icon><img src="../../../img/export.png" alt="" style="width:12px;height:12px;vertical-align: middle"/> </el-icon
           >&nbsp;&nbsp;导出</el-button
         >
-        <el-button type="primary" class="function" @click="this.search='',this.state='',this.value1=null"
+        <el-button type="primary" class="function" @click="this.search='',this.state='',this.value1=''"
           ><el-icon><img src="../../../img/重置.png" alt="" style="width:12px;height:12px;vertical-align: middle"/> </el-icon
           >&nbsp;&nbsp;重置</el-button
         >
       </div>
       <!-- 消息 -->
-      <div style="text-align: right; margin: 10px 140px">
+      <!-- <div style="text-align: right; margin: 10px 140px">
         <img
           src="../../../img/通知 铃铛 消息.png"
           alt=""
@@ -67,7 +67,7 @@
           @click="examineList()"
         />
         <span style="margin-left: -15px; color: #fff">{{ conut }}</span>
-      </div>
+      </div> -->
     <!-- 回显数据表格 -->
       <el-table
         :data="revenueTableData"
@@ -80,10 +80,11 @@
           textAlign: 'center',
         }"
         :cell-style="{ textAlign: 'center' }"
+         @selection-change="handleSelectionChange"
       >
       <el-table-column type="selection" width="55"> </el-table-column>
         <el-table-column label="支出日期" prop="expenditureDate" />
-        <el-table-column label="提款单位/个人" prop="drawing" />
+        <el-table-column label="提款单位/个人" prop="drawingName" />
         <el-table-column label="支出用途" prop="purpose" />
         <el-table-column label="支出金额" prop="expenditureMoney" />
           <el-table-column label="支出方式" prop="expenditureMode">
@@ -100,10 +101,10 @@
           </template>
         </el-table-column>
         <el-table-column label="备注" prop="remarks" align="right" />
-        <el-table-column label="经办人" prop="staffId" align="right" />
+        <el-table-column label="经办人" prop="staffName" align="right" />
              <el-table-column label="状态" prop="payApprovalState">
               <template #default="scope">
-                  <img v-if="scope.row.incomeState==0" src="http://soft.hkdemo.cn/images/tsm/02.png" style="" alt="">
+                  <img v-if="scope.row.payapprovalState==0" src="http://soft.hkdemo.cn/images/tsm/02.png" style="" alt="">
             <img v-else src="http://soft.hkdemo.cn/images/tsm/14.png" alt="">
           </template>
         </el-table-column>
@@ -190,7 +191,7 @@ export default {
       },
       limitNum: 1,
       fileList: [],
-
+      ids:[],
       state: "",
       currentPage: 1, //页码
       pageSize: 5, //每页条数
@@ -210,6 +211,26 @@ export default {
   },
 
   methods: {
+    handleSelectionChange(val) {
+      this.ids = val.map((v) => v.expenditureId); // [{id,name}, {id,name}] => [id,id]
+    },
+    //审核通过
+    updateBatchbyid(){
+      if(this.ids.length>0){
+        request.put("/ExpenditureAndRefundAndPurchaseAndStaff/update",this.ids)
+      .then((res)=>{
+        if(res.code=="200"){
+          this.$message.success(res.msg)
+          this.load()
+        }else{
+          this.$message.error(res.msg)
+        }
+      })
+      }else{
+        this.$message.warning("请勾选需要通过的数据")
+      }
+      
+    },
      handleClose(done) {
       this.fileList=[]
       done();
@@ -223,7 +244,7 @@ export default {
      }
       console.error(page1); 
       
-      request.post("/PayAndStaffAndstudent/export",page1).then((res) => {
+      request.post("/ExpenditureAndRefundAndPurchaseAndStaff/export",page1).then((res) => {
         if(res.code=="200"){
             this.$notify.success({
                 title:"还不错",
@@ -249,11 +270,14 @@ export default {
             pageSize: this.pageSize,
             search: this.search,
       }
-      request.post("/finance-expenditure/paging",{
+      request.post("/ExpenditureAndRefundAndPurchaseAndStaff/paging",{
          Paging:paging,
+         state:this.state,
+           data :this.value1[0],
+           data1:this.value1[1]
       })
       .then((res)=>{
-         if (res.code == "0") {
+         if (res.code == "200") {
             this.revenueTableData = res.data.records;
             this.currentPage = res.data.current;
             this.pageSize = res.data.size;

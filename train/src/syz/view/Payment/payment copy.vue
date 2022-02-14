@@ -38,7 +38,7 @@
         <el-button type="primary" class="function" icon="search" size="16px" @click="load"
          >搜素</el-button
         >
-         <el-button type="primary" class="function"
+         <el-button type="primary" class="function" @click="updateBatchbyid()"
          ><el-icon><img src="../../../img/shenhetongguo.png" alt="" style="width:16px;height:16px;vertical-align: middle"/> </el-icon
           >&nbsp;&nbsp;审核通过</el-button
         >
@@ -59,7 +59,7 @@
         >
       </div>
       <!-- 消息 -->
-      <div style="text-align: right; margin: 10px 140px">
+      <!-- <div style="text-align: right; margin: 10px 140px">
         <img
           src="../../../img/通知 铃铛 消息.png"
           alt=""
@@ -67,7 +67,7 @@
           @click="examineList()"
         />
         <span style="margin-left: -15px; color: #fff">{{ conut }}</span>
-      </div>
+      </div> -->
     <!-- 回显数据表格 -->
       <el-table
         :data="revenueTableData"
@@ -80,6 +80,7 @@
           textAlign: 'center',
         }"
         :cell-style="{ textAlign: 'center' }"
+        @selection-change="handleSelectionChange"
       >
       <el-table-column type="selection" width="55"> </el-table-column>
         <el-table-column label="缴费日期" prop="paymoneyDate" />
@@ -108,7 +109,7 @@
         <el-table-column label="打印" align="right">
           
           <template #default="scope">
-            <el-button size="small" type="text" @click="details(scope.row)"
+            <el-button size="small" type="text" @click="exportrevenueByid(scope.row.paymoneyId)"
               ><img src="http://soft.hkdemo.cn/images/print.gif" alt=""></el-button
             >
           </template>
@@ -297,7 +298,7 @@ export default {
       },
       limitNum: 1,
       fileList: [],
-
+      ids:[],
       state: "",
       currentPage: 1, //页码
       pageSize: 5, //每页条数
@@ -317,42 +318,23 @@ export default {
   },
 
   methods: {
-    // paymoneyMoney(){
-    //    const paging={
-    //    currentPage: this.currentPage,
-    //         pageSize: this.pageSize,
-    //         search: this.search,
-    //   }
-    //   request
-    //     .post("/PayAndStaffAndstudent/paging", {
-    //        Paging:paging
-    //     })
-    //     .then((res) => {
-          
-    //       if (res.code == "200") {
-    //       // this.TotalPayment=
-    //       res.data.records.forEach(e=>{
-    //         this.TotalPayment+=e.paymoneyMoney
-    //         if(e.incomeState==1){
-    //           this.NotApproved+=e.paymoneyMoney
-    //         }else{
-    //            this.Reviewed+=e.paymoneyMoney
-    //         }
-    //         if(e.paymoneyMode=="现金"){
-    //           this.cash+=e.paymoneyMoney
-    //         }else if(e.paymoneyMode=="微信支付"){
-    //             this.WechatPayment+=e.paymoneyMoney
-    //         }else if(e.paymoneyMode=="刷卡"){
-    //             this.payByCard+=e.paymoneyMoney
-    //         }else{
-    //             this.other+=e.paymoneyMoney
-    //         }
-    //       })
-    //       } else {
-    //         this.$message.error(res.msg);
-    //       }
-    //     });
-    // },
+    // 获取选中的数据
+    handleSelectionChange(val) {
+      this.ids = val.map((v) => v.paymoneyId); // [{id,name}, {id,name}] => [id,id]
+    },
+    //审核通过
+    updateBatchbyid(){
+      request.put("/PayAndStaffAndstudent/update",this.ids)
+      .then((res)=>{
+        if(res.code=="200"){
+          this.$message.success(res.msg)
+          this.load()
+        }else{
+          this.$message.error(res.msg)
+        }
+      })
+    },
+   
     // 日期（暂放）
     a(s){
       s.forEach(element => {
@@ -363,6 +345,28 @@ export default {
       this.fileList=[]
       done();
     },
+     // 根据id导出
+    exportrevenueByid(id) {
+      console.error(id);
+      request.post("/PayAndStaffAndstudent/exportByid",id).then((res) => {
+        if(res.code=="200"){
+            this.$notify.success({
+                title:"还不错",
+                message:res.msg
+            })
+        }else{
+            this.$notify.error({
+                title:"错误",
+                message:"哎呀！出问题了"
+            })
+        }
+      }).catch(error=>{
+          this.$notify.error({
+                title:"错误",
+                message:"哎呀！出问题了"
+            })
+      });
+    },
     // 导出
     exportrevenue() {
       const page1={ 
@@ -370,7 +374,6 @@ export default {
       pageSize:this.pageSize,
      search:this.search
      }
-      console.error(page1); 
       
       request.post("/PayAndStaffAndstudent/export",page1).then((res) => {
         if(res.code=="200"){
