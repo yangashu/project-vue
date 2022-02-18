@@ -129,7 +129,7 @@
                 :src="userfrom.personal.personalAvatar"
                 class="avatar avatar-uploader-icon"
               />
-              <el-icon v-else class="avatar-uploader-icon"><plus /></el-icon>
+              <el-icon v-else :src="userfrom.personal.personalAvatar" class="avatar-uploader-icon"><plus /></el-icon>
               <!-- <i v-else class="avatar-uploader-icon"><i-plus /></i> -->
             </el-upload>
           </el-form-item>

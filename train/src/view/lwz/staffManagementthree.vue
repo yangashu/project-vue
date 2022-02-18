@@ -49,12 +49,20 @@
         </el-row>
         <el-dialog
         v-model="dialogVisible"
-        title="录入新人脸"
+        :title="dialogTitle"
+        id="dialog"
         center="true"
         :before-close="dialogClose"
         width="40%">
-          <video id="videoCamera" :width="videoWidth" :height="videoHeight" autoplay></video>
-          <canvas style="display:none;" id="canvasCamera" :width="videoWidth" :height="videoHeight"></canvas>
+          <div class="camera_outer">
+            <video id="videoCamera" :width="videoWidth" :height="videoHeight" autoplay></video>
+            <canvas style="display:none;" id="canvasCamera" :width="videoWidth" :height="videoHeight"></canvas>
+            <!-- <p>效果预览</p> -->
+            <img :src="imgSrc" alt class="tx_img" id="xgyl" @click="remake()"/>
+            <br>
+            <el-button type="primary" @click="dialogClose">取消</el-button>
+            <el-button type="primary" @click="updateFace">确定</el-button>
+          </div>
         </el-dialog>
   </div>
 </template>
@@ -72,16 +80,18 @@ export default {
         thisVideo: null,
         openVideo:false,
         aaa:null,
+        bbb:null,
       //========================================================================================
+        dialogTitle:"正在拍照",
         dialogVisible:false,
         id:0,
         staffData:[],
         pageInfo:{
-        currentPage: 1,
-        pagesize: 3,
-        total: 0,
-        like: "",
-      },
+          currentPage: 1,
+          pagesize: 3,
+          total: 0,
+          like: "",
+        },
     };
   },
   methods: {
@@ -135,11 +145,10 @@ export default {
     },
     // 调用权限（打开摄像头功能）
     getCompetence() {
-      var _this = this;
-      _this.thisCancas = document.getElementById("canvasCamera");
-      _this.thisContext = this.thisCancas.getContext("2d");
-      _this.thisVideo = document.getElementById("videoCamera");
-      _this.thisVideo.style.display = 'block';
+      this.thisCancas = document.getElementById("canvasCamera");
+      this.thisContext = this.thisCancas.getContext("2d");
+      this.thisVideo = document.getElementById("videoCamera");
+      this.thisVideo.style.display = 'block';
       // 获取媒体属性，旧版本浏览器可能不支持mediaDevices，我们首先设置一个空对象
       if (navigator.mediaDevices === undefined) {
         navigator.mediaDevices = {};
@@ -177,22 +186,23 @@ export default {
       };
       navigator.mediaDevices
         .getUserMedia(constraints)
-        .then(function(stream) {
+        .then((stream)=> {
           // 旧的浏览器可能没有srcObject
-          if ("srcObject" in _this.thisVideo) {
-            _this.thisVideo.srcObject = stream;
+          if ("srcObject" in this.thisVideo) {
+            this.thisVideo.srcObject = stream;
           } else {
             // 避免在新的浏览器中使用它，因为它正在被弃用。
-            _this.thisVideo.src = window.URL.createObjectURL(stream);
+            this.thisVideo.src = window.URL.createObjectURL(stream);
           }
-          _this.thisVideo.onloadedmetadata = function(e) {
-            _this.thisVideo.play();
+          this.thisVideo.onloadedmetadata = (e)=> {
+            this.thisVideo.play();
           };
         })
         .catch(err => {
           console.log(err);
         });
     },
+    
     //  绘制图片（拍照功能）
 	  setImage() {
       var _this = this;
@@ -206,29 +216,11 @@ export default {
       );
       // 获取图片base64链接
       var image = this.thisCancas.toDataURL("image/png");
-      
-      var uu=this.dataURLtoFile(image);
-      let fData=new FormData()
-      fData.append('url',uu)
-      this.axios.post("http://localhost:8080/two",fData)
-      .then(function(response){
-        console.log(response)
-        if(response.data.code=="0"){
-          _this.$message({
-            type:"success",
-            message:response.data.msg
-          })
-          clearInterval(_this.aaa)
-          _this.stopNavigator()
-        }else{
-          _this.$message({
-            type:"error",
-            message:response.data.msg
-          })
-        }
-      }).catch(function(err){
-        console.log(err)
-      })
+      this.imgSrc=image
+      this.stopNavigator()
+      document.getElementById("xgyl").style.display="block"
+      clearInterval(this.bbb)
+      this.dialogTitle="点击图片可重拍"
     },
     // base64转文件，此处没用到
     dataURLtoFile(dataurl, filename='file') {
@@ -248,33 +240,79 @@ export default {
       this.thisVideo.srcObject.getTracks()[0].stop();
       document.getElementById("videoCamera").style.display="none"
     },
-    //弹窗方法
+    //打开弹窗并打开摄像头
     dialogEject(staffId){
       this.dialogVisible=true;
       this.id=staffId;
-      this.getCompetence();
+      setTimeout(()=>{
+        this.getCompetence();
+      },500);
+      
+      this.bbb=setInterval(()=>{
+        this.setImage()
+      },5000);
     },
     //关闭弹窗
     dialogClose(){
       this.dialogVisible=false;
       this.stopNavigator();
+      document.getElementById("videoCamera").style.display="none";
+      document.getElementById("xgyl").style.display="none";
+      this.dialogTitle="正在拍照"
+      clearInterval(this.bbb)
+    },
+    //重新拍照方法
+    remake(){
+      this.imgSrc=undefined;
+      document.getElementById("xgyl").style.display="none"
+      document.getElementById("videoCamera").style.display="block";
+      this.dialogTitle="正在拍照"
+     this.dialogEject(this.id);
     },
     //人脸更新
     updateFace(){
-
+      var _this=this
+      var uu=this.dataURLtoFile(this.imgSrc);
+      let fData=new FormData()
+      fData.append('url',uu)
+      request.post("/sys-staff/facetwo/"+this.id,fData)
+      .then(function(response){
+        console.log(response)
+        if(response.code=="0"){
+          _this.$message({
+            type:"success",
+            message:response.msg
+          })
+          clearInterval(_this.aaa)
+          _this.stopNavigator()
+        }else{
+          _this.$message({
+            type:"error",
+            message:response.msg
+          })
+        }
+      }).catch(function(err){
+        console.log(err)
+      })
     }
   },
   created() {
+    
       request.get("/sys-staff/faceOne",{params:this.pageInfo})
     .then(response =>{
       this.staffData=response.records;
       this.pageInfo.total = response.total;
+
+      
     })
     .catch(error =>{
       console.log(error)
     })
+
+   
   },
-  mounted() {}
+  mounted() {
+  }
 };
 </script>
 <style>
@@ -282,8 +320,12 @@ export default {
     border-radius: 360px;
     margin: auto;
 }
-.button{
-    position: relative;
-    top: -200px;
+#xgyl{
+  width: 250px;
+  height: 250px;
+  display: none;
+  border-radius: 360px;
+  margin: auto;
 }
+
 </style>

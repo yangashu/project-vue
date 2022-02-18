@@ -121,7 +121,7 @@ export default {
               })
             }
           }).catch(error=>{
-            this.$message.error(error)
+            this.$message.error(res.msg)
           })
         }
       })

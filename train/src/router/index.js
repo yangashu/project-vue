@@ -37,6 +37,9 @@ const routes=[
         { path: '/position', component: ()=>import('../syz/view/position/position.vue') },
         { path: '/finance', component: ()=>import('../syz/view/Finance/finance.vue') },
         { path: '/order', component: ()=>import('../syz/view/test/b.vue') },
+        { path: '/payment', component: ()=>import('../syz/view/Payment/payment.vue') },
+        { path: '/school', component: ()=>import('../syz/view/Finance/expenditure.vue') },
+        { path: '/refund', component: ()=>import('../syz/view/Finance/Refund.vue')},
 
 
         {path:"/freshman", component: freshman},
